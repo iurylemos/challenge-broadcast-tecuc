@@ -1,6 +1,6 @@
 # Tasks (marcar ao concluir; cada task cita os REQ cobertos)
 
-- [ ] T01 Setup: Vite, Tailwind (sem preflight), MUI, Firebase init, emulators. (REQ-NFR-02)
+- [ ] T01 Setup: Vite, MUI, Firebase init, emulators. (REQ-NFR-02)
 - [ ] T02 Auth: AuthProvider, login, cadastro, ProtectedRoute. (REQ-AUTH-01/02)
 - [ ] T03 Rules + indexes + testes de isolamento. (REQ-NFR-01)
 - [ ] T04 CRUD conexões em tempo real. (REQ-CON-01)
