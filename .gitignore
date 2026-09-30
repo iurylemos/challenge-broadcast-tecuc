@@ -22,3 +22,13 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+.env
+
+# Firebase variables
+
+functions/lib/*
+!functions/lib/.gitkeep
+
+.emulator-data/*
+!.emulator-data/.gitkeep
