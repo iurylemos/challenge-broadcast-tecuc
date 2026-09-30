@@ -1,0 +1,26 @@
+{
+  "name": "challenge-broadcast-tecuc",
+  "version": "0.0.1",
+  "description": "this project was created to improve the messages between the users",
+  "license": "ISC",
+  "author": "Iury Lemos",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "dev": "firebase emulators:start --import=.emulator-data --export-on-exit",
+    "dev:web": "npm --prefix web run dev",
+    "build": "npm --prefix web run build && npm --prefix functions run build",
+    "test": "npm --prefix web test -- --run && npm --prefix functions test",
+    "deploy": "npm run build && firebase deploy",
+    "deploy:hosting": "npm --prefix web run build && firebase deploy --only hosting",
+    "deploy:all": "npm --prefix web run build && firebase deploy --only firestore,functions,hosting"
+  },
+  "keywords": [
+    "broadcast",
+    "tecuc",
+    "challenge"
+  ],
+  "devDependencies": {
+    "firebase-tools": "^15.32.0"
+  }
+}
