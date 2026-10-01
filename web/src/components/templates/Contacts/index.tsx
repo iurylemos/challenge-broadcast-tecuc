@@ -12,7 +12,7 @@ import { ContactsService } from "../../../services/contacts.service";
 
 import ContactDialog from "../../organisms/ContactDialog";
 import ContactList from "../../molecules/ContactList";
-import Header from "../../organisms/Header";
+import Header from "../../atoms/Header";
 import FooterContacts from "../../atoms/FooterContacts";
 import { RouterUtil } from "../../../utils/router.util";
 

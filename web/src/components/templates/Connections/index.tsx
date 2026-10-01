@@ -10,7 +10,7 @@ import { ConnectionsService } from "../../../services/connections.service";
 import { AuthContext } from "../../../contexts/auth/Auth.context";
 import ConnectionList from "../../molecules/ConnectionList";
 import ConnectionDialog from "../../organisms/ConnectionDialog";
-import Header from "../../organisms/Header";
+import Header from "../../atoms/Header";
 import FooterConnections from "../../atoms/FooterConnections";
 import { RouterUtil } from "../../../utils/router.util";
 

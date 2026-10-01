@@ -16,7 +16,7 @@ import { MessagesService } from "../../../services/messages.service";
 
 import MessageList from "../../molecules/MessageList";
 import MessageDialog from "../../organisms/MessageDialog";
-import Header from "../../organisms/Header";
+import Header from "../../atoms/Header";
 import FooterMessage from "../../atoms/FooterMessage";
 import Tabs from "../../atoms/Tabs";
 
