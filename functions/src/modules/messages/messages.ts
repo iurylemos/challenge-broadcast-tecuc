@@ -166,7 +166,7 @@ export const updateMessage = onCall(
   },
 );
 
-export const deleteMessages = onCall(
+export const deleteMessage = onCall(
   async (request: CallableRequest<any>): Promise<MessageCreated> => {
     const ownerId = requireAuth(request.auth?.uid);
 

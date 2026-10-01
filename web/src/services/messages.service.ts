@@ -2,7 +2,9 @@ import {
   collection,
   onSnapshot,
   query,
+  QuerySnapshot,
   where,
+  type DocumentData,
   type Unsubscribe,
 } from "firebase/firestore";
 import { httpsCallable, type HttpsCallableResult } from "firebase/functions";
@@ -39,7 +41,7 @@ const updateMessageFunction = httpsCallable<
 const deleteMessageFunction = httpsCallable<
   DeleteMessage,
   FirebaseFunctionResponseStatus
->(functions, "deleteMessages");
+>(functions, "deleteMessage");
 
 export class MessagesService {
   public static async create(
@@ -78,7 +80,7 @@ export class MessagesService {
 
     return onSnapshot(
       messagesQuery,
-      (snapshot) => {
+      (snapshot: QuerySnapshot<DocumentData, DocumentData>) => {
         const messages: Message[] = snapshot.docs.map((document) => {
           const data = document.data();
 
