@@ -6,6 +6,7 @@ import {
 } from "firebase-functions/v2/https";
 import { firestore } from "../../config/firebase.config";
 import type { MessageCreated } from "../../interfaces/message.interface";
+import { CallableUtil } from "../../utils/callable.util";
 
 const contacts = firestore.collection("contacts");
 const connections = firestore.collection("connections");
@@ -29,72 +30,79 @@ const validateConnection = async (
   }
 };
 
-export const createContact = onCall(async (request: CallableRequest<any>) => {
-  const ownerId = requireAuth(request.auth?.uid);
+export const createContact = onCall(
+  CallableUtil.callableOptionCall,
+  async (request: CallableRequest<any>) => {
+    const ownerId = requireAuth(request.auth?.uid);
 
-  const { connectionId, name, phone } = request.data ?? {};
+    const { connectionId, name, phone } = request.data ?? {};
 
-  if (!connectionId || !name?.trim() || !phone?.trim()) {
-    throw new HttpsError(
-      "invalid-argument",
-      "Connection, name and phone are required.",
-    );
-  }
+    if (!connectionId || !name?.trim() || !phone?.trim()) {
+      throw new HttpsError(
+        "invalid-argument",
+        "Connection, name and phone are required.",
+      );
+    }
 
-  await validateConnection(connectionId, ownerId);
+    await validateConnection(connectionId, ownerId);
 
-  const ref = contacts.doc();
+    const ref = contacts.doc();
 
-  await ref.set({
-    ownerId,
-    connectionId,
-    name: name.trim(),
-    phone: phone.trim(),
-    createdAt: FieldValue.serverTimestamp(),
-    updatedAt: FieldValue.serverTimestamp(),
-  });
+    await ref.set({
+      ownerId,
+      connectionId,
+      name: name.trim(),
+      phone: phone.trim(),
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    });
 
-  return {
-    id: ref.id,
-    connectionId,
-    name: name.trim(),
-    phone: phone.trim(),
-  };
-});
+    return {
+      id: ref.id,
+      connectionId,
+      name: name.trim(),
+      phone: phone.trim(),
+    };
+  },
+);
 
-export const updateContact = onCall(async (request: CallableRequest<any>) => {
-  const ownerId = requireAuth(request.auth?.uid);
+export const updateContact = onCall(
+  CallableUtil.callableOptionCall,
+  async (request: CallableRequest<any>) => {
+    const ownerId = requireAuth(request.auth?.uid);
 
-  const { id, name, phone } = request.data ?? {};
+    const { id, name, phone } = request.data ?? {};
 
-  if (!id || !name?.trim() || !phone?.trim()) {
-    throw new HttpsError(
-      "invalid-argument",
-      "Contact id, name and phone are required.",
-    );
-  }
+    if (!id || !name?.trim() || !phone?.trim()) {
+      throw new HttpsError(
+        "invalid-argument",
+        "Contact id, name and phone are required.",
+      );
+    }
 
-  const ref = contacts.doc(id);
-  const snapshot = await ref.get();
+    const ref = contacts.doc(id);
+    const snapshot = await ref.get();
 
-  if (!snapshot.exists || snapshot.data()?.ownerId !== ownerId) {
-    throw new HttpsError("not-found", "Contact not found.");
-  }
+    if (!snapshot.exists || snapshot.data()?.ownerId !== ownerId) {
+      throw new HttpsError("not-found", "Contact not found.");
+    }
 
-  await ref.update({
-    name: name.trim(),
-    phone: phone.trim(),
-    updatedAt: FieldValue.serverTimestamp(),
-  });
+    await ref.update({
+      name: name.trim(),
+      phone: phone.trim(),
+      updatedAt: FieldValue.serverTimestamp(),
+    });
 
-  return {
-    id,
-    name: name.trim(),
-    phone: phone.trim(),
-  };
-});
+    return {
+      id,
+      name: name.trim(),
+      phone: phone.trim(),
+    };
+  },
+);
 
 export const deleteContact = onCall(
+  CallableUtil.callableOptionCall,
   async (request: CallableRequest<any>): Promise<MessageCreated> => {
     const ownerId = requireAuth(request.auth?.uid);
 

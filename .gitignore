@@ -32,3 +32,5 @@ functions/lib/*
 
 .emulator-data/*
 !.emulator-data/.gitkeep
+
+.firebase/*
