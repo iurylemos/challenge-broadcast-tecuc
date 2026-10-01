@@ -1,14 +1,17 @@
-import { Box, Button, Container, Typography } from "@mui/material";
+import { Button } from "@mui/material";
 import { useContext, useEffect, useState, type JSX } from "react";
+import { useNavigate } from "react-router-dom";
+
 import type { Connection } from "../../../interfaces/connection.interface";
 import type { AuthState } from "../../../interfaces/auth.interface";
+
 import { FirebaseService } from "../../../services/firebase.service";
 import { ConnectionsService } from "../../../services/connections.service";
 import { AuthContext } from "../../../contexts/auth/Auth.context";
-import { useNavigate } from "react-router-dom";
-import { MagicNumber } from "../../../interfaces/magicNumber.enum";
 import ConnectionList from "../../molecules/ConnectionList";
 import ConnectionDialog from "../../organisms/ConnectionDialog";
+import Header from "../../organisms/Header";
+import FooterConnections from "../../atoms/FooterConnections";
 
 export default function ConnectionsTemplate(): JSX.Element {
   const defaultConnection: Connection = {
@@ -75,68 +78,64 @@ export default function ConnectionsTemplate(): JSX.Element {
   };
 
   return (
-    <Container maxWidth="lg">
-      <Box
-        sx={{
-          py: MagicNumber.FOUR,
-          display: "flex",
-          flexDirection: "column",
-          gap: MagicNumber.FOUR,
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            paddingBottom: MagicNumber.FIVE,
-            borderBottomStyle: "solid",
-            borderBottomColor: "black",
-          }}
-        >
-          <Box>
-            <Typography variant="h4" component="h1">
-              Conexões
-            </Typography>
+    <main className="min-h-screen bg-slate-950 text-white">
+      <Header />
 
-            <Typography color="text.secondary">
-              Gerencie suas conexões
-            </Typography>
-          </Box>
+      <div className="mx-auto w-full max-w-6xl px-6 py-8 lg:px-8">
+        <div className="flex flex-col gap-8">
+          <header className="flex flex-col gap-5 border-b border-white/10 pb-6 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight text-white">
+                Conexões
+              </h1>
 
-          <Button variant="contained" onClick={handleCreate}>
-            Nova conexão
-          </Button>
-        </Box>
+              <p className="mt-1 text-sm text-slate-400">
+                Gerencie suas conexões
+              </p>
+            </div>
 
-        <ConnectionList
-          connections={connections}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onOpen={handleOpen}
-        />
+            <Button
+              variant="contained"
+              onClick={handleCreate}
+              sx={{
+                minHeight: 42,
+                borderRadius: "10px",
+                backgroundColor: "#7c3aed",
+                textTransform: "none",
+                fontWeight: 600,
+                boxShadow: "0 10px 25px rgba(124, 58, 237, 0.2)",
+                "&:hover": {
+                  backgroundColor: "#6d28d9",
+                  boxShadow: "0 12px 30px rgba(124, 58, 237, 0.3)",
+                },
+              }}
+            >
+              Nova conexão
+            </Button>
+          </header>
 
-        <ConnectionDialog
-          open={dialogOpen}
-          connection={selectedConnection}
-          onClose={() => setDialogOpen(false)}
-          onSubmit={handleSubmit}
-        />
+          <section>
+            <ConnectionList
+              connections={connections}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onOpen={handleOpen}
+            />
+          </section>
 
-        <Box>
-          <Typography variant="body2" color="text.secondary">
-            Logado como {user?.email}
-          </Typography>
+          <ConnectionDialog
+            open={dialogOpen}
+            connection={selectedConnection}
+            onClose={() => setDialogOpen(false)}
+            onSubmit={handleSubmit}
+          />
 
-          <Button
-            variant="outlined"
-            sx={{ mt: MagicNumber.ONE }}
-            onClick={() => FirebaseService.signOut()}
-          >
-            Sair
-          </Button>
-        </Box>
-      </Box>
-    </Container>
+          <FooterConnections
+            user={user}
+            signout={() => FirebaseService.signOut()}
+          />
+        </div>
+      </div>
+    </main>
   );
 }

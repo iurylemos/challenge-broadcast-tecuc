@@ -6,8 +6,13 @@ import {
   DialogTitle,
   TextField,
 } from "@mui/material";
-import { useState, type JSX } from "react";
-import type { Contact } from "../../../interfaces/contact.interface";
+import { useEffect, type JSX } from "react";
+import { useForm } from "react-hook-form";
+
+import type {
+  Contact,
+  ContactFormData,
+} from "../../../interfaces/contact.interface";
 
 type ContactDialogProps = {
   open: boolean;
@@ -22,72 +27,83 @@ export default function ContactDialog({
   onClose,
   onSubmit,
 }: Readonly<ContactDialogProps>): JSX.Element {
-  const [name, setName] = useState<string>(contact.name ?? "");
-  const [phone, setPhone] = useState<string>(contact.phone ?? "");
-  const [loading, setLoading] = useState<boolean>(false);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting, errors },
+  } = useForm<ContactFormData>({
+    defaultValues: {
+      name: contact.name ?? "",
+      phone: contact.phone ?? "",
+    },
+  });
 
-  const handleSubmit = async (): Promise<void> => {
-    if (!name.trim() || !phone.trim()) {
-      return;
+  useEffect(() => {
+    if (open) {
+      reset({
+        name: contact.name ?? "",
+        phone: contact.phone ?? "",
+      });
     }
-
-    try {
-      setLoading(true);
-
-      await onSubmit(name.trim(), phone.trim());
-
-      setName("");
-      setPhone("");
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [open, contact, reset]);
 
   const isEditing = Boolean(contact.id);
 
+  const handleFormSubmit = async ({
+    name,
+    phone,
+  }: ContactFormData): Promise<void> => {
+    await onSubmit(name.trim(), phone.trim());
+  };
+
   return (
-    <Dialog open={open} onClose={loading ? undefined : onClose} fullWidth>
+    <Dialog open={open} onClose={isSubmitting ? undefined : onClose} fullWidth>
       <DialogTitle>{isEditing ? "Editar contato" : "Novo contato"}</DialogTitle>
 
-      <DialogContent>
-        <TextField
-          fullWidth
-          label="Nome"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          margin="normal"
-          autoFocus
-        />
+      <form onSubmit={handleSubmit(handleFormSubmit)}>
+        <DialogContent>
+          <TextField
+            {...register("name", {
+              required: "Nome é obrigatório",
+            })}
+            fullWidth
+            label="Nome"
+            margin="normal"
+            autoFocus
+            error={Boolean(errors.name)}
+            helperText={errors.name?.message}
+          />
 
-        <TextField
-          fullWidth
-          label="Telefone"
-          value={phone}
-          onChange={(event) => setPhone(event.target.value)}
-          margin="normal"
-          placeholder="+55 11 99999-9999"
-        />
-      </DialogContent>
+          <TextField
+            {...register("phone", {
+              required: "Telefone é obrigatório",
+            })}
+            fullWidth
+            label="Telefone"
+            margin="normal"
+            placeholder="+55 11 99999-9999"
+            error={Boolean(errors.phone)}
+            helperText={errors.phone?.message}
+          />
+        </DialogContent>
 
-      <DialogActions>
-        <Button onClick={onClose} disabled={loading}>
-          Cancelar
-        </Button>
+        <DialogActions>
+          <Button onClick={onClose} disabled={isSubmitting}>
+            Cancelar
+          </Button>
 
-        <Button
-          variant="contained"
-          onClick={handleSubmit}
-          disabled={loading || !name.trim() || !phone.trim()}
-        >
-          {loading && isEditing
-            ? "Editando"
-            : isEditing
-              ? "Editar"
-              : loading && !isEditing
-                ? "Salvando..."
+          <Button type="submit" variant="contained" disabled={isSubmitting}>
+            {isSubmitting
+              ? isEditing
+                ? "Editando..."
+                : "Salvando..."
+              : isEditing
+                ? "Editar"
                 : "Salvar"}
-        </Button>
-      </DialogActions>
+          </Button>
+        </DialogActions>
+      </form>
     </Dialog>
   );
 }
