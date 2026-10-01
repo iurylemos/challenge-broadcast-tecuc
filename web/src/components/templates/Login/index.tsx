@@ -83,10 +83,8 @@ export default function LoginTemplate(): JSX.Element {
           </p>
         </section>
 
-        {/* Login side */}
         <section className="flex w-full items-center justify-center px-6 py-10 lg:w-130 lg:px-10">
           <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white p-7 shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-10">
-            {/* Mobile logo */}
             <div className="mb-10 flex items-center gap-3 lg:hidden">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-600">
                 <span className="text-lg font-bold text-white">B</span>

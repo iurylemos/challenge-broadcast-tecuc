@@ -45,7 +45,6 @@ export function SignupTemplate(): JSX.Element {
       </div>
 
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-7xl">
-        {/* Brand side */}
         <section className="hidden flex-1 flex-col justify-between p-12 lg:flex xl:p-16">
           <div>
             <div className="mb-10 flex items-center gap-3">
@@ -85,10 +84,8 @@ export function SignupTemplate(): JSX.Element {
           </p>
         </section>
 
-        {/* Signup */}
         <section className="flex w-full items-center justify-center px-6 py-10 lg:w-130 lg:px-10">
           <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white p-7 shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-10">
-            {/* Mobile logo */}
             <div className="mb-10 flex items-center gap-3 lg:hidden">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-600">
                 <span className="text-lg font-bold text-white">B</span>
