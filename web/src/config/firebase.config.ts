@@ -12,7 +12,7 @@ const app = initializeApp({
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export const functions = getFunctions(app, "us-central1");
+export const functions = getFunctions(app, "southamerica-east1");
 
 if (import.meta.env.VITE_USE_EMULATORS === "true") {
   connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
