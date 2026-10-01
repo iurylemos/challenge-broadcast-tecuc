@@ -3,6 +3,7 @@ import { AuthContext } from "../contexts/auth/Auth.context";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import type { AuthState } from "../interfaces/auth.interface";
 import Loading from "../components/atoms/Loading";
+import { RouterPath } from "../interfaces/router.interface";
 
 export default function ProtectedRouteProvider(): JSX.Element {
   const { user, loading } = useContext<AuthState>(AuthContext);
@@ -11,7 +12,10 @@ export default function ProtectedRouteProvider(): JSX.Element {
 
   if (loading) return <Loading />;
 
-  if (!user) return <Navigate to="/login" replace state={{ from: location }} />;
+  if (!user)
+    return (
+      <Navigate to={RouterPath.LOGIN} replace state={{ from: location }} />
+    );
 
   return <Outlet />;
 }

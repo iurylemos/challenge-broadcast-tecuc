@@ -1,5 +1,6 @@
 import type { JSX } from "react";
 import { Button } from "@mui/material";
+import { RouterPath } from "../../../interfaces/router.interface";
 
 type FooterContactsProps = {
   navigate: (path: string) => void;
@@ -12,7 +13,7 @@ export default function FooterContacts({
     <footer className="border-t border-white/10 pt-6">
       <Button
         variant="text"
-        onClick={() => navigate("/connections")}
+        onClick={() => navigate(RouterPath.CONNECTIONS)}
         sx={{
           color: "#94a3b8",
           textTransform: "none",

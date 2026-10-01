@@ -1,6 +1,8 @@
 import type { JSX } from "react";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { RouterPath } from "../../../interfaces/router.interface";
+import { RouterUtil } from "../../../utils/router.util";
 
 type FooterMessageProps = {
   connectionId: string | undefined;
@@ -15,7 +17,9 @@ export default function FooterMessage({
     <footer className="flex flex-col gap-2 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:gap-4">
       <Button
         variant="text"
-        onClick={() => navigate(`/connections/${connectionId}/contacts`)}
+        onClick={() =>
+          navigate(RouterUtil.generateRouteContacts(connectionId!))
+        }
         sx={{
           color: "#94a3b8",
           textTransform: "none",
@@ -31,7 +35,7 @@ export default function FooterMessage({
 
       <Button
         variant="text"
-        onClick={() => navigate("/connections")}
+        onClick={() => navigate(RouterPath.CONNECTIONS)}
         sx={{
           color: "#94a3b8",
           textTransform: "none",
