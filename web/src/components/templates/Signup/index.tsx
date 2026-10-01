@@ -124,7 +124,7 @@ export function SignupTemplate(): JSX.Element {
               <TextField
                 label="Email"
                 type="email"
-                autoComplete="email"
+                autoComplete="off"
                 fullWidth
                 {...register("email")}
                 error={!!errors.email}
@@ -143,7 +143,7 @@ export function SignupTemplate(): JSX.Element {
               <TextField
                 label="Senha"
                 type="password"
-                autoComplete="new-password"
+                autoComplete="off"
                 fullWidth
                 {...register("password")}
                 error={!!errors.password}
@@ -162,7 +162,7 @@ export function SignupTemplate(): JSX.Element {
               <TextField
                 label="Confirmar senha"
                 type="password"
-                autoComplete="new-password"
+                autoComplete="off"
                 fullWidth
                 {...register("confirmPassword")}
                 error={!!errors.confirmPassword}

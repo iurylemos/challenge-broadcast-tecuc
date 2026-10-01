@@ -123,7 +123,7 @@ export default function LoginTemplate(): JSX.Element {
               <TextField
                 label="Email"
                 type="email"
-                autoComplete="email"
+                autoComplete="off"
                 fullWidth
                 {...register("email")}
                 error={!!errors.email}
@@ -142,7 +142,7 @@ export default function LoginTemplate(): JSX.Element {
               <TextField
                 label="Senha"
                 type="password"
-                autoComplete="current-password"
+                autoComplete="off"
                 fullWidth
                 {...register("password")}
                 error={!!errors.password}

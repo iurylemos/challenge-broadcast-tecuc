@@ -18,6 +18,7 @@ import MessageList from "../../molecules/MessageList";
 import MessageDialog from "../../organisms/MessageDialog";
 import Header from "../../organisms/Header";
 import FooterMessage from "../../atoms/FooterMessage";
+import Tabs from "../../atoms/Tabs";
 
 export default function MessageTemplate(): JSX.Element {
   const [error, setError] = useState<string>("");
@@ -191,47 +192,7 @@ export default function MessageTemplate(): JSX.Element {
             </Alert>
           )}
 
-          <div className="border-b border-white/10">
-            <div className="border-b border-white/10">
-              <div className="flex flex-col sm:flex-row">
-                <button
-                  type="button"
-                  onClick={() => setFilter("all")}
-                  className={`border-b-2 px-4 py-3 text-left text-sm font-medium transition-colors sm:px-0 sm:pb-3 sm:mr-6 ${
-                    filter === "all"
-                      ? "border-violet-500 text-violet-300"
-                      : "border-transparent text-slate-400 hover:text-slate-200"
-                  }`}
-                >
-                  Todas
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setFilter("sent")}
-                  className={`border-b-2 px-4 py-3 text-left text-sm font-medium transition-colors sm:px-0 sm:pb-3 sm:mr-6 ${
-                    filter === "sent"
-                      ? "border-violet-500 text-violet-300"
-                      : "border-transparent text-slate-400 hover:text-slate-200"
-                  }`}
-                >
-                  Enviadas
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setFilter("scheduled")}
-                  className={`border-b-2 px-4 py-3 text-left text-sm font-medium transition-colors ${
-                    filter === "scheduled"
-                      ? "border-violet-500 text-violet-300"
-                      : "border-transparent text-slate-400 hover:text-slate-200"
-                  }`}
-                >
-                  Agendadas
-                </button>
-              </div>
-            </div>
-          </div>
+          <Tabs currentFilter={filter} setFilter={setFilter} />
 
           <section>
             {loading ? (

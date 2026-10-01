@@ -64,6 +64,8 @@ export default function ConnectionsTemplate(): JSX.Element {
 
   const handleSubmit = async (name: string): Promise<void> => {
     try {
+      console.log("selectedConnection", selectedConnection);
+
       if (selectedConnection.id) {
         await ConnectionsService.update(selectedConnection.id, name);
       } else {
