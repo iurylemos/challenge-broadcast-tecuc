@@ -12,7 +12,9 @@
     "build:web": "npm --prefix web run build",
     "build:functions": "npm --prefix functions run build",
     "build": "npm run build:web && npm run build:functions",
-    "test": "npm --prefix web test -- --run && npm --prefix functions test",
+    "test:web": "npm --prefix web test",
+    "test:functions": "npm --prefix functions test",
+    "test": "npm run test:web && npm run test:functions",
     "deploy": "npm run build && firebase deploy",
     "deploy:hosting": "npm --prefix web run build && firebase deploy --only hosting",
     "deploy:all": "npm --prefix web run build && firebase deploy --only firestore,functions,hosting"
