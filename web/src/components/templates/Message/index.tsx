@@ -1,28 +1,24 @@
-import {
-  Alert,
-  Box,
-  Button,
-  CircularProgress,
-  Container,
-  Stack,
-  Tab,
-  Tabs,
-  Typography,
-} from "@mui/material";
+import { Alert, Button, CircularProgress } from "@mui/material";
 import { useContext, useEffect, useMemo, useState, type JSX } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import type { ConnectionParams } from "../../../interfaces/connection.interface";
+import { useParams } from "react-router-dom";
+
 import { AuthContext } from "../../../contexts/auth/Auth.context";
 import type { AuthState } from "../../../interfaces/auth.interface";
+import type { ConnectionParams } from "../../../interfaces/connection.interface";
 import type { Contact } from "../../../interfaces/contact.interface";
 import type {
   Message,
   MessageFilter,
 } from "../../../interfaces/message.interface";
+
 import { ContactsService } from "../../../services/contacts.service";
 import { MessagesService } from "../../../services/messages.service";
+
 import MessageList from "../../molecules/MessageList";
 import MessageDialog from "../../organisms/MessageDialog";
+import Header from "../../organisms/Header";
+import FooterMessage from "../../atoms/FooterMessage";
+import Tabs from "../../atoms/Tabs";
 
 export default function MessageTemplate(): JSX.Element {
   const [error, setError] = useState<string>("");
@@ -33,7 +29,6 @@ export default function MessageTemplate(): JSX.Element {
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
 
-  const navigate = useNavigate();
   const { connectionId } = useParams<ConnectionParams>();
   const { user } = useContext<AuthState>(AuthContext);
 
@@ -93,9 +88,13 @@ export default function MessageTemplate(): JSX.Element {
 
   const handleDelete = async (message: Message): Promise<void> => {
     try {
+      setLoading(true);
       await MessagesService.delete(message.id);
     } catch (error: unknown) {
       console.error("Failed to delete message:", error);
+      setError("Não foi possível deletar a mensagem");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -108,117 +107,121 @@ export default function MessageTemplate(): JSX.Element {
       return;
     }
 
-    if (selectedMessage) {
-      await MessagesService.update({
-        id: selectedMessage.id,
-        contactIds,
-        message: content,
-        scheduledAt,
-      });
-    } else {
-      await MessagesService.create({
-        connectionId,
-        contactIds,
-        message: content,
-        scheduledAt,
-      });
-    }
+    try {
+      setLoading(true);
 
-    setDialogOpen(false);
-    setSelectedMessage(null);
+      if (selectedMessage) {
+        await MessagesService.update({
+          id: selectedMessage.id,
+          contactIds,
+          message: content,
+          scheduledAt,
+        });
+      } else {
+        await MessagesService.create({
+          connectionId,
+          contactIds,
+          message: content,
+          scheduledAt,
+        });
+      }
+
+      setDialogOpen(false);
+      setSelectedMessage(null);
+    } catch (error: unknown) {
+      const errorMessage = selectedMessage
+        ? "Não foi possível atualizar a mensagem"
+        : "Não foi possível criar a mensagem";
+
+      console.error(errorMessage, error);
+
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ py: 4 }}>
-        <Stack
-          sx={{
-            direction: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            mb: 4,
-          }}
-        >
-          <Box>
-            <Typography variant="h4" component="h1">
-              Broadcast
-            </Typography>
+    <main className="min-h-screen bg-slate-950 text-white">
+      <Header />
 
-            <Typography color="text.secondary">
-              Envie ou agende mensagens para seus contatos
-            </Typography>
-          </Box>
+      <div className="mx-auto w-full max-w-6xl px-6 py-8 lg:px-8">
+        <div className="flex flex-col gap-8">
+          <header className="flex flex-col gap-5 border-b border-white/10 pb-6 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight text-white">
+                Gerenciar Mensagens
+              </h1>
 
-          <Button
-            variant="contained"
-            onClick={handleCreate}
-            disabled={!contacts.length}
-          >
-            Nova mensagem
-          </Button>
-        </Stack>
+              <p className="mt-1 text-sm text-slate-400">
+                Envie ou agende mensagens para seus contatos
+              </p>
+            </div>
 
-        {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {error}
-          </Alert>
-        )}
-
-        <Tabs
-          value={filter}
-          onChange={(_, value: MessageFilter) => setFilter(value)}
-          sx={{ mb: 3 }}
-        >
-          <Tab value="all" label="Todas" />
-          <Tab value="sent" label="Enviadas" />
-          <Tab value="scheduled" label="Agendadas" />
-        </Tabs>
-
-        {loading ? (
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              py: 6,
-            }}
-          >
-            <CircularProgress />
-          </Box>
-        ) : (
-          <MessageList
-            messages={filteredMessages}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        )}
-
-        <MessageDialog
-          open={dialogOpen}
-          contacts={contacts}
-          message={selectedMessage}
-          onClose={() => {
-            setDialogOpen(false);
-            setSelectedMessage(null);
-          }}
-          onSubmit={handleSubmit}
-        />
-
-        <Box
-          sx={{
-            mt: 4,
-          }}
-        >
-          <Stack direction="row" spacing={2}>
             <Button
-              onClick={() => navigate(`/connections/${connectionId}/contacts`)}
+              variant="contained"
+              onClick={handleCreate}
+              disabled={!contacts.length}
+              sx={{
+                minHeight: 42,
+                borderRadius: "10px",
+                backgroundColor: "#7c3aed",
+                textTransform: "none",
+                fontWeight: 600,
+                boxShadow: "0 10px 25px rgba(124, 58, 237, 0.2)",
+                "&:hover": {
+                  backgroundColor: "#6d28d9",
+                  boxShadow: "0 12px 30px rgba(124, 58, 237, 0.3)",
+                },
+                "&.Mui-disabled": {
+                  backgroundColor: "#3f3f46",
+                  color: "#71717a",
+                },
+              }}
             >
-              Contatos
+              Nova mensagem
             </Button>
+          </header>
 
-            <Button onClick={() => navigate("/connections")}>Conexões</Button>
-          </Stack>
-        </Box>
-      </Box>
-    </Container>
+          {error && (
+            <Alert
+              severity="error"
+              className="rounded-xl! border border-red-500/20!"
+            >
+              {error}
+            </Alert>
+          )}
+
+          <Tabs currentFilter={filter} setFilter={setFilter} />
+
+          <section>
+            {loading ? (
+              <div className="flex justify-center py-16">
+                <CircularProgress />
+              </div>
+            ) : (
+              <MessageList
+                messages={filteredMessages}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            )}
+          </section>
+
+          <MessageDialog
+            open={dialogOpen}
+            contacts={contacts}
+            message={selectedMessage}
+            onClose={() => {
+              setDialogOpen(false);
+              setSelectedMessage(null);
+            }}
+            onSubmit={handleSubmit}
+          />
+
+          <FooterMessage connectionId={connectionId} />
+        </div>
+      </div>
+    </main>
   );
 }

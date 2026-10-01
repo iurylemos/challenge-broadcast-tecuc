@@ -1,21 +1,19 @@
-import {
-  Alert,
-  Box,
-  Button,
-  CircularProgress,
-  Container,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Alert, Button, CircularProgress } from "@mui/material";
 import { useContext, useEffect, useState, type JSX } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+
 import { AuthContext } from "../../../contexts/auth/Auth.context";
+
 import type { AuthState } from "../../../interfaces/auth.interface";
 import type { Contact } from "../../../interfaces/contact.interface";
-import { ContactsService } from "../../../services/contacts.service";
 import type { ConnectionParams } from "../../../interfaces/connection.interface";
+
+import { ContactsService } from "../../../services/contacts.service";
+
 import ContactDialog from "../../organisms/ContactDialog";
 import ContactList from "../../molecules/ContactList";
+import Header from "../../organisms/Header";
+import FooterContacts from "../../atoms/FooterContacts";
 
 export default function ContactsTemplate(): JSX.Element {
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
@@ -23,11 +21,10 @@ export default function ContactsTemplate(): JSX.Element {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
 
-  const { connectionId } = useParams<ConnectionParams>();
+  const { user } = useContext<AuthState>(AuthContext);
 
   const navigate = useNavigate();
-
-  const { user } = useContext<AuthState>(AuthContext);
+  const { connectionId } = useParams<ConnectionParams>();
 
   const defaultContact: Contact = {
     id: "",
@@ -47,11 +44,11 @@ export default function ContactsTemplate(): JSX.Element {
     return ContactsService.subscribe(
       user.uid,
       connectionId,
-      (items) => {
+      (items: Contact[]): void => {
         setContacts(items);
         setLoading(false);
       },
-      () => {
+      (): void => {
         setError("Não foi possível carregar os contatos.");
         setLoading(false);
       },
@@ -68,16 +65,19 @@ export default function ContactsTemplate(): JSX.Element {
   };
 
   const handleEdit = (contact: Contact): void => {
-    console.log("contact", contact);
     setSelectedContact(contact);
     setDialogOpen(true);
   };
 
   const handleDelete = async (contact: Contact): Promise<void> => {
     try {
+      setLoading(true);
       await ContactsService.delete(contact.id);
     } catch (error) {
       console.error("Failed to delete contact:", error);
+      setError("Não foi possível excluir o contato.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -85,100 +85,121 @@ export default function ContactsTemplate(): JSX.Element {
     if (!connectionId) {
       return;
     }
+    try {
+      setLoading(true);
 
-    if (selectedContact.id) {
-      await ContactsService.update(selectedContact.id, name, phone);
-    } else {
-      await ContactsService.create(connectionId, name, phone);
+      if (selectedContact.id) {
+        await ContactsService.update(selectedContact.id, name, phone);
+      } else {
+        await ContactsService.create(connectionId, name, phone);
+      }
+
+      setDialogOpen(false);
+
+      setSelectedContact({
+        ...defaultContact,
+        connectionId,
+      });
+    } catch (error: unknown) {
+      console.error("Failed to save or update contact:", error);
+
+      const errorMessage = selectedContact.id
+        ? "Não foi possível atualizar o contato."
+        : "Não foi possível criar o contato.";
+
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
     }
-
-    setDialogOpen(false);
-    setSelectedContact({
-      ...defaultContact,
-      connectionId,
-    });
   };
 
   if (!connectionId) {
     return (
-      <Container>
-        <Alert severity="error">Conexão não encontrada.</Alert>
-      </Container>
+      <main className="min-h-screen bg-slate-950 text-white">
+        <Header />
+
+        <div className="mx-auto w-full max-w-6xl px-6 py-8 lg:px-8">
+          <Alert severity="error" className="rounded-xl!">
+            Conexão não encontrada.
+          </Alert>
+        </div>
+      </main>
     );
   }
 
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ py: 4 }}>
-        <Stack
-          sx={{
-            direction: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            mb: 4,
-          }}
-        >
-          <Box>
-            <Typography variant="h4" component="h1">
-              Contatos
-            </Typography>
+    <main className="min-h-screen bg-slate-950 text-white">
+      <Header />
 
-            <Typography color="text.secondary">
-              Gerencie os contatos desta conexão
-            </Typography>
-          </Box>
+      <div className="mx-auto w-full max-w-6xl px-6 py-8 lg:px-8">
+        <div className="flex flex-col gap-8">
+          <header className="flex flex-col gap-5 border-b border-white/10 pb-6 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight text-white">
+                Contatos
+              </h1>
 
-          <Button variant="contained" onClick={handleCreate}>
-            Novo contato
-          </Button>
-        </Stack>
+              <p className="mt-1 text-sm text-slate-400">
+                Gerencie os contatos desta conexão
+              </p>
+            </div>
 
-        {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {error}
-          </Alert>
-        )}
-
-        {loading ? (
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              py: 6,
-            }}
-          >
-            <CircularProgress />
-          </Box>
-        ) : (
-          <Stack spacing={2}>
-            <ContactList
-              contacts={contacts}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              openMessages={() => {
-                navigate(`/connections/${connectionId}/messages`);
+            <Button
+              variant="contained"
+              onClick={handleCreate}
+              sx={{
+                minHeight: 42,
+                borderRadius: "10px",
+                backgroundColor: "#7c3aed",
+                textTransform: "none",
+                fontWeight: 600,
+                boxShadow: "0 10px 25px rgba(124, 58, 237, 0.2)",
+                "&:hover": {
+                  backgroundColor: "#6d28d9",
+                  boxShadow: "0 12px 30px rgba(124, 58, 237, 0.3)",
+                },
               }}
-            />
-          </Stack>
-        )}
+            >
+              Novo contato
+            </Button>
+          </header>
 
-        <ContactDialog
-          open={dialogOpen}
-          contact={selectedContact}
-          onClose={() => setDialogOpen(false)}
-          onSubmit={handleSubmit}
-        />
+          {error && (
+            <Alert
+              severity="error"
+              className="rounded-xl! border border-red-500/20!"
+            >
+              {error}
+            </Alert>
+          )}
 
-        <Box
-          sx={{
-            mt: 4,
-          }}
-        >
-          <Button onClick={() => navigate("/connections")}>
-            Voltar para conexões
-          </Button>
-        </Box>
-      </Box>
-    </Container>
+          <section>
+            {loading ? (
+              <div className="flex justify-center py-16">
+                <CircularProgress />
+              </div>
+            ) : (
+              <ContactList
+                contacts={contacts}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                openMessages={() => {
+                  navigate(`/connections/${connectionId}/messages`);
+                }}
+              />
+            )}
+          </section>
+
+          <ContactDialog
+            open={dialogOpen}
+            contact={selectedContact}
+            onClose={() => setDialogOpen(false)}
+            onSubmit={handleSubmit}
+          />
+
+          <FooterContacts navigate={(path) => navigate(path)} />
+        </div>
+      </div>
+    </main>
   );
 }

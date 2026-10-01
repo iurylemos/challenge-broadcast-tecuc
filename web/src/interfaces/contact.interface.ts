@@ -4,3 +4,8 @@ export interface Contact {
   name: string;
   phone: string;
 }
+
+export type ContactFormData = {
+  name: string;
+  phone: string;
+};
