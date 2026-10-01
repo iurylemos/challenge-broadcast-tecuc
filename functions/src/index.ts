@@ -13,7 +13,7 @@ export {
 export {
   createMessage,
   updateMessage,
-  deleteMessages,
+  deleteMessage,
 } from "./modules/messages/messages";
 
 export { processScheduledMessages } from "./modules/scheduled/scheduled.func";

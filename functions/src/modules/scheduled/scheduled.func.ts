@@ -1,12 +1,13 @@
 import { Timestamp } from "firebase-admin/firestore";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import { firestore } from "../../config/firebase.config";
+import { logger } from "firebase-functions";
 
 const messages = firestore.collection("messages");
 
 export const processScheduledMessages = onSchedule(
   {
-    schedule: "every 1 minutes",
+    schedule: "every minute",
     timeZone: "America/Sao_Paulo",
     region: "southamerica-east1",
   },
@@ -20,7 +21,7 @@ export const processScheduledMessages = onSchedule(
       .get();
 
     if (snapshot.empty) {
-      console.log("No scheduled messages to process.");
+      logger.log("No scheduled messages to process.");
       return;
     }
 
@@ -36,6 +37,6 @@ export const processScheduledMessages = onSchedule(
 
     await batch.commit();
 
-    console.log(`Processed ${snapshot.size} scheduled broadcasts.`);
+    logger.info(`Processed ${snapshot.size} scheduled broadcasts.`);
   },
 );

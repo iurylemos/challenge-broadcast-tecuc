@@ -68,7 +68,9 @@ export const createMessage = onCall(
       );
     }
 
-    const date = scheduledAt ? Timestamp.fromDate(new Date(scheduledAt)) : null;
+    const date = scheduledAt
+      ? Timestamp.fromDate(new Date(`${scheduledAt}:00-03:00`))
+      : null;
 
     const isScheduled = date !== null;
 
@@ -164,7 +166,7 @@ export const updateMessage = onCall(
   },
 );
 
-export const deleteMessages = onCall(
+export const deleteMessage = onCall(
   async (request: CallableRequest<any>): Promise<MessageCreated> => {
     const ownerId = requireAuth(request.auth?.uid);
 

@@ -1,10 +1,11 @@
 import { Box, Button, Container, Typography } from "@mui/material";
 import { useContext, useEffect, useState, type JSX } from "react";
+import type { Connection } from "../../../interfaces/connection.interface";
+import type { AuthState } from "../../../interfaces/auth.interface";
 import { FirebaseService } from "../../../services/firebase.service";
 import { ConnectionsService } from "../../../services/connections.service";
 import { AuthContext } from "../../../contexts/auth/Auth.context";
-import type { Connection } from "../../../interfaces/connection.interface";
-import type { AuthState } from "../../../interfaces/auth.interface";
+import { useNavigate } from "react-router-dom";
 import { MagicNumber } from "../../../interfaces/magicNumber.enum";
 import ConnectionList from "../../molecules/ConnectionList";
 import ConnectionDialog from "../../organisms/ConnectionDialog";
@@ -14,6 +15,8 @@ export default function ConnectionsTemplate(): JSX.Element {
     id: "",
     name: "",
   };
+
+  const navigate = useNavigate();
 
   const { user } = useContext<AuthState>(AuthContext);
 
@@ -53,7 +56,7 @@ export default function ConnectionsTemplate(): JSX.Element {
   };
 
   const handleOpen = (connection: Connection): void => {
-    console.log("Open connection:", connection);
+    navigate(`/connections/${connection.id}/contacts`);
   };
 
   const handleSubmit = async (name: string): Promise<void> => {
