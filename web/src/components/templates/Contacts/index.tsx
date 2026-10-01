@@ -14,6 +14,7 @@ import ContactDialog from "../../organisms/ContactDialog";
 import ContactList from "../../molecules/ContactList";
 import Header from "../../organisms/Header";
 import FooterContacts from "../../atoms/FooterContacts";
+import { RouterUtil } from "../../../utils/router.util";
 
 export default function ContactsTemplate(): JSX.Element {
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
@@ -184,7 +185,7 @@ export default function ContactsTemplate(): JSX.Element {
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 openMessages={() => {
-                  navigate(`/connections/${connectionId}/messages`);
+                  navigate(RouterUtil.generateRouteMessages(connectionId));
                 }}
               />
             )}

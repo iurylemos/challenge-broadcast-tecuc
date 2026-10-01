@@ -12,6 +12,7 @@ import ConnectionList from "../../molecules/ConnectionList";
 import ConnectionDialog from "../../organisms/ConnectionDialog";
 import Header from "../../organisms/Header";
 import FooterConnections from "../../atoms/FooterConnections";
+import { RouterUtil } from "../../../utils/router.util";
 
 export default function ConnectionsTemplate(): JSX.Element {
   const defaultConnection: Connection = {
@@ -59,7 +60,7 @@ export default function ConnectionsTemplate(): JSX.Element {
   };
 
   const handleOpen = (connection: Connection): void => {
-    navigate(`/connections/${connection.id}/contacts`);
+    navigate(RouterUtil.generateRouteContacts(connection.id));
   };
 
   const handleSubmit = async (name: string): Promise<void> => {

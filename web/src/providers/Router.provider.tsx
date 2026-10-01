@@ -6,28 +6,29 @@ import ProtectedRouteProvider from "./ProtectedRoute.provider";
 import ConnectionsTemplate from "../components/templates/Connections";
 import ContactsTemplate from "../components/templates/Contacts";
 import MessageTemplate from "../components/templates/Message";
+import { RouterPath } from "../interfaces/router.interface";
 
 export const router = createBrowserRouter([
   {
     element: <PublicRouteProvider />,
     children: [
-      { path: "/login", element: <LoginTemplate /> },
-      { path: "/signup", element: <SignupTemplate /> },
+      { path: RouterPath.LOGIN, element: <LoginTemplate /> },
+      { path: RouterPath.SIGNUP, element: <SignupTemplate /> },
     ],
   },
   {
     element: <ProtectedRouteProvider />,
     children: [
-      { path: "/connections", element: <ConnectionsTemplate /> },
+      { path: RouterPath.CONNECTIONS, element: <ConnectionsTemplate /> },
       {
-        path: "/connections/:connectionId/contacts",
+        path: RouterPath.CONNECTION_CONTACTS,
         element: <ContactsTemplate />,
       },
       {
-        path: "/connections/:connectionId/messages",
+        path: RouterPath.CONNECTION_MESSAGES,
         element: <MessageTemplate />,
       },
     ],
   },
-  { path: "*", element: <Navigate to="/connections" replace /> },
+  { path: "*", element: <Navigate to={RouterPath.CONNECTIONS} replace /> },
 ]);

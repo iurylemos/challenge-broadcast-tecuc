@@ -12,6 +12,7 @@ import { ArrowForward, LockOutlined, MailOutlined } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { signupSchema, type SignupInput } from "../../../schemas/signup.schema";
 import { FirebaseService } from "../../../services/firebase.service";
+import { RouterPath } from "../../../interfaces/router.interface";
 
 export function SignupTemplate(): JSX.Element {
   const [serverError, setServerError] = useState<string | null>(null);
@@ -209,7 +210,7 @@ export function SignupTemplate(): JSX.Element {
             <p className="text-center text-sm text-slate-400">
               Já possui uma conta?{" "}
               <Link
-                to="/login"
+                to={RouterPath.LOGIN}
                 className="font-semibold text-violet-500 transition-colors hover:text-violet-400"
               >
                 Fazer login
