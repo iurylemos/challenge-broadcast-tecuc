@@ -6,3 +6,7 @@ export interface Connection {
 export interface ConnectionStatus {
   success: boolean;
 }
+
+export type ConnectionParams = {
+  connectionId: string;
+};
