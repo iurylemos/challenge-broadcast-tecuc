@@ -1,6 +1,11 @@
 import { FieldValue } from "firebase-admin/firestore";
-import { onCall, HttpsError } from "firebase-functions/v2/https";
+import {
+  onCall,
+  HttpsError,
+  type CallableRequest,
+} from "firebase-functions/v2/https";
 import { firestore } from "../../config/firebase.config";
+import type { MessageCreated } from "../../interfaces/message.interface";
 
 const contacts = firestore.collection("contacts");
 const connections = firestore.collection("connections");
@@ -24,7 +29,7 @@ const validateConnection = async (
   }
 };
 
-export const createContact = onCall(async (request) => {
+export const createContact = onCall(async (request: CallableRequest<any>) => {
   const ownerId = requireAuth(request.auth?.uid);
 
   const { connectionId, name, phone } = request.data ?? {};
@@ -57,7 +62,7 @@ export const createContact = onCall(async (request) => {
   };
 });
 
-export const updateContact = onCall(async (request) => {
+export const updateContact = onCall(async (request: CallableRequest<any>) => {
   const ownerId = requireAuth(request.auth?.uid);
 
   const { id, name, phone } = request.data ?? {};
@@ -89,23 +94,25 @@ export const updateContact = onCall(async (request) => {
   };
 });
 
-export const deleteContact = onCall(async (request) => {
-  const ownerId = requireAuth(request.auth?.uid);
+export const deleteContact = onCall(
+  async (request: CallableRequest<any>): Promise<MessageCreated> => {
+    const ownerId = requireAuth(request.auth?.uid);
 
-  const id = request.data?.id;
+    const id = request.data?.id;
 
-  if (!id) {
-    throw new HttpsError("invalid-argument", "Contact id is required.");
-  }
+    if (!id) {
+      throw new HttpsError("invalid-argument", "Contact id is required.");
+    }
 
-  const ref = contacts.doc(id);
-  const snapshot = await ref.get();
+    const ref = contacts.doc(id);
+    const snapshot = await ref.get();
 
-  if (!snapshot.exists || snapshot.data()?.ownerId !== ownerId) {
-    throw new HttpsError("not-found", "Contact not found.");
-  }
+    if (!snapshot.exists || snapshot.data()?.ownerId !== ownerId) {
+      throw new HttpsError("not-found", "Contact not found.");
+    }
 
-  await ref.delete();
+    await ref.delete();
 
-  return { success: true };
-});
+    return { success: true };
+  },
+);
