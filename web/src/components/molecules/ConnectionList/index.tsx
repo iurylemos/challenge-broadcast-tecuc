@@ -1,8 +1,8 @@
-import { Grid } from "@mui/material";
 import type { JSX } from "react";
+import { Grid } from "@mui/material";
 import type { Connection } from "../../../interfaces/connection.interface";
-import ConnectionCard from "../../atoms/ConnectionCard";
 import { MagicNumber } from "../../../interfaces/magicNumber.enum";
+import ConnectionCard from "../../atoms/ConnectionCard";
 
 type ConnectionListProps = {
   connections: Connection[];
