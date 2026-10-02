@@ -6,7 +6,7 @@ import {
 } from "firebase-functions/v2/https";
 import { firestore } from "../../config/firebase.config";
 import type { MessageCreated } from "../../interfaces/message.interface";
-import { CallableUtil } from "../../utils/callable.util";
+import { callableOptions } from "../../options/callable.option";
 
 const contacts = firestore.collection("contacts");
 const connections = firestore.collection("connections");
@@ -31,7 +31,7 @@ const validateConnection = async (
 };
 
 export const createContact = onCall(
-  CallableUtil.callableOptionCall,
+  callableOptions,
   async (request: CallableRequest<any>) => {
     const ownerId = requireAuth(request.auth?.uid);
 
@@ -67,7 +67,7 @@ export const createContact = onCall(
 );
 
 export const updateContact = onCall(
-  CallableUtil.callableOptionCall,
+  callableOptions,
   async (request: CallableRequest<any>) => {
     const ownerId = requireAuth(request.auth?.uid);
 
@@ -102,7 +102,7 @@ export const updateContact = onCall(
 );
 
 export const deleteContact = onCall(
-  CallableUtil.callableOptionCall,
+  callableOptions,
   async (request: CallableRequest<any>): Promise<MessageCreated> => {
     const ownerId = requireAuth(request.auth?.uid);
 
