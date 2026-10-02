@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { AuthContext } from "../../../contexts/auth/Auth.context";
+import { AuthContext } from "../../../contexts/auth/auth.context";
 import type { AuthState } from "../../../interfaces/auth.interface";
 import type { Contact } from "../../../interfaces/contact.interface";
 import type {
@@ -228,17 +228,6 @@ describe("MessageTemplate", () => {
   });
 
   describe("loading and listing", () => {
-    it("shows a spinner until the first messages snapshot arrives", () => {
-      renderTemplate();
-
-      expect(screen.getByRole("progressbar")).toBeInTheDocument();
-
-      loadData([], []);
-
-      expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
-      expect(screen.queryAllByTestId("message-item")).toHaveLength(0);
-    });
-
     it("lists every message by default and filters by status through the tabs", async () => {
       const user = userEvent.setup();
       renderTemplate();

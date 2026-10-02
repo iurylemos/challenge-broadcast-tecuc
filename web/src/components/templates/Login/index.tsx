@@ -1,4 +1,4 @@
-import { useState, type JSX } from "react";
+import { useContext, useState, type JSX } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -13,9 +13,21 @@ import { Link } from "react-router-dom";
 import { loginSchema, type LoginInput } from "../../../schemas/login.schema";
 import { FirebaseService } from "../../../services/firebase.service";
 import { RouterPath } from "../../../interfaces/router.interface";
+import {
+  LoadingContext,
+  type LoadingContextData,
+} from "../../../contexts/loading/loading.context";
+import {
+  SnackbarContext,
+  type SnackbarContextData,
+} from "../../../contexts/snackbar/snackbar.context";
+import { SnackbarStatus } from "../../../interfaces/snackbar.interface";
 
 export default function LoginTemplate(): JSX.Element {
   const [serverError, setServerError] = useState<string | null>(null);
+
+  const { setIsLoading } = useContext<LoadingContextData>(LoadingContext);
+  const { showSnackbar } = useContext<SnackbarContextData>(SnackbarContext);
 
   const {
     register,
@@ -26,12 +38,22 @@ export default function LoginTemplate(): JSX.Element {
   });
 
   const onSubmit = handleSubmit(async ({ email, password }): Promise<void> => {
-    setServerError(null);
-
     try {
+      setServerError(null);
+
+      setIsLoading(true);
+
       await FirebaseService.signIn(email, password);
+
+      setIsLoading(false);
+
+      showSnackbar("Login realizado com sucesso!", SnackbarStatus.SUCCESS);
     } catch (error) {
       setServerError(FirebaseService.getAuthErrorMessage(error));
+
+      setIsLoading(false);
+
+      showSnackbar("Não foi possível fazer o login.", SnackbarStatus.ERROR);
     }
   });
 
@@ -80,7 +102,8 @@ export default function LoginTemplate(): JSX.Element {
           </div>
 
           <p className="text-sm text-slate-500">
-            © {new Date().getFullYear()} Broadcast. All rights reserved.
+            © {new Date().getFullYear()} Broadcast. Todos os direitos
+            reservados.
           </p>
         </section>
 
@@ -122,11 +145,11 @@ export default function LoginTemplate(): JSX.Element {
               className="flex flex-col gap-5 "
             >
               <TextField
+                {...register("email")}
                 label="Email"
                 type="email"
                 autoComplete="off"
                 fullWidth
-                {...register("email")}
                 error={!!errors.email}
                 helperText={errors.email?.message}
                 slotProps={{
@@ -141,11 +164,11 @@ export default function LoginTemplate(): JSX.Element {
               />
 
               <TextField
+                {...register("password")}
                 label="Senha"
                 type="password"
                 autoComplete="off"
                 fullWidth
-                {...register("password")}
                 error={!!errors.password}
                 helperText={errors.password?.message}
                 slotProps={{

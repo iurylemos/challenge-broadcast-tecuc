@@ -7,12 +7,21 @@ import type { AuthState } from "../../../interfaces/auth.interface";
 
 import { FirebaseService } from "../../../services/firebase.service";
 import { ConnectionsService } from "../../../services/connections.service";
-import { AuthContext } from "../../../contexts/auth/Auth.context";
+import { AuthContext } from "../../../contexts/auth/auth.context";
 import ConnectionList from "../../molecules/ConnectionList";
 import ConnectionDialog from "../../organisms/ConnectionDialog";
 import Header from "../../atoms/Header";
 import FooterConnections from "../../atoms/FooterConnections";
 import { RouterUtil } from "../../../utils/router.util";
+import {
+  LoadingContext,
+  type LoadingContextData,
+} from "../../../contexts/loading/loading.context";
+import {
+  SnackbarContext,
+  type SnackbarContextData,
+} from "../../../contexts/snackbar/snackbar.context";
+import { SnackbarStatus } from "../../../interfaces/snackbar.interface";
 
 export default function ConnectionsTemplate(): JSX.Element {
   const defaultConnection: Connection = {
@@ -23,6 +32,9 @@ export default function ConnectionsTemplate(): JSX.Element {
   const navigate = useNavigate();
 
   const { user } = useContext<AuthState>(AuthContext);
+
+  const { setIsLoading } = useContext<LoadingContextData>(LoadingContext);
+  const { showSnackbar } = useContext<SnackbarContextData>(SnackbarContext);
 
   const [connections, setConnections] = useState<Connection[]>([]);
 
@@ -53,9 +65,22 @@ export default function ConnectionsTemplate(): JSX.Element {
 
   const handleDelete = async (connection: Connection): Promise<void> => {
     try {
+      setIsLoading(true);
+
       await ConnectionsService.delete(connection.id);
-    } catch (error) {
-      console.error("Failed to delete connection:", error);
+
+      setIsLoading(false);
+      showSnackbar("Conexão deletada com sucesso!", SnackbarStatus.SUCCESS);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Erro desconhecido";
+
+      setIsLoading(false);
+
+      showSnackbar(
+        `Falha ao deletar a conexão: ${errorMessage}`,
+        SnackbarStatus.ERROR,
+      );
     }
   };
 
@@ -65,7 +90,7 @@ export default function ConnectionsTemplate(): JSX.Element {
 
   const handleSubmit = async (name: string): Promise<void> => {
     try {
-      console.log("selectedConnection", selectedConnection);
+      setIsLoading(true);
 
       if (selectedConnection.id) {
         await ConnectionsService.update(selectedConnection.id, name);
@@ -74,9 +99,23 @@ export default function ConnectionsTemplate(): JSX.Element {
       }
 
       setDialogOpen(false);
+      setIsLoading(false);
+
       setSelectedConnection(defaultConnection);
+
+      showSnackbar(
+        `Conexão ${selectedConnection.id ? "atualizada" : "criada"} com sucesso!`,
+        SnackbarStatus.SUCCESS,
+      );
     } catch (error: unknown) {
       console.error("Failed to save connection:", error);
+
+      const errorMessage =
+        error instanceof Error ? error.message : "Erro desconhecido";
+
+      setIsLoading(false);
+
+      showSnackbar(errorMessage, SnackbarStatus.ERROR);
     }
   };
 

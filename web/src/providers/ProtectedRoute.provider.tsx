@@ -1,21 +1,20 @@
 import { useContext, type JSX } from "react";
-import { AuthContext } from "../contexts/auth/Auth.context";
+import { AuthContext } from "../contexts/auth/auth.context";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import type { AuthState } from "../interfaces/auth.interface";
-import Loading from "../components/atoms/Loading";
 import { RouterPath } from "../interfaces/router.interface";
+import {
+  LoadingContext,
+  type LoadingContextData,
+} from "../contexts/loading/loading.context";
 
 export default function ProtectedRouteProvider(): JSX.Element {
-  const { user, loading } = useContext<AuthState>(AuthContext);
+  const { user } = useContext<AuthState>(AuthContext);
+  const { isLoading } = useContext<LoadingContextData>(LoadingContext);
 
   const location = useLocation();
 
-  if (loading) return <Loading />;
+  if (user || isLoading) return <Outlet />;
 
-  if (!user)
-    return (
-      <Navigate to={RouterPath.LOGIN} replace state={{ from: location }} />
-    );
-
-  return <Outlet />;
+  return <Navigate to={RouterPath.LOGIN} replace state={{ from: location }} />;
 }

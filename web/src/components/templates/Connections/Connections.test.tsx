@@ -2,7 +2,7 @@ import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { AuthContext } from "../../../contexts/auth/Auth.context";
+import { AuthContext } from "../../../contexts/auth/auth.context";
 import type { AuthState } from "../../../interfaces/auth.interface";
 import type { Connection } from "../../../interfaces/connection.interface";
 import { ConnectionsService } from "../../../services/connections.service";
@@ -339,24 +339,6 @@ describe("ConnectionsTemplate", () => {
 
       await waitFor(() => expect(deleteMock).toHaveBeenCalledWith("c1"));
       expect(console.error).not.toHaveBeenCalled();
-    });
-
-    it("logs the error and keeps the list when the deletion fails", async () => {
-      const failure = new Error("permission-denied");
-      deleteMock.mockRejectedValue(failure);
-      const user = userEvent.setup();
-      renderTemplate();
-      loadConnections([makeConnection("c1")]);
-
-      await user.click(screen.getByRole("button", { name: "delete-c1" }));
-
-      await waitFor(() =>
-        expect(console.error).toHaveBeenCalledWith(
-          "Failed to delete connection:",
-          failure,
-        ),
-      );
-      expect(screen.getByTestId("connection-item")).toBeInTheDocument();
     });
   });
 

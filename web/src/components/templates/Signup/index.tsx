@@ -1,4 +1,4 @@
-import { useState, type JSX } from "react";
+import { useContext, useState, type JSX } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -13,9 +13,20 @@ import { Link } from "react-router-dom";
 import { signupSchema, type SignupInput } from "../../../schemas/signup.schema";
 import { FirebaseService } from "../../../services/firebase.service";
 import { RouterPath } from "../../../interfaces/router.interface";
+import {
+  LoadingContext,
+  type LoadingContextData,
+} from "../../../contexts/loading/loading.context";
+import {
+  SnackbarContext,
+  type SnackbarContextData,
+} from "../../../contexts/snackbar/snackbar.context";
+import { SnackbarStatus } from "../../../interfaces/snackbar.interface";
 
 export function SignupTemplate(): JSX.Element {
   const [serverError, setServerError] = useState<string | null>(null);
+  const { setIsLoading } = useContext<LoadingContextData>(LoadingContext);
+  const { showSnackbar } = useContext<SnackbarContextData>(SnackbarContext);
 
   const {
     register,
@@ -29,9 +40,17 @@ export function SignupTemplate(): JSX.Element {
     setServerError(null);
 
     try {
+      setIsLoading(true);
+
       await FirebaseService.signUp(email, password);
+
+      setIsLoading(false);
+      showSnackbar("Conta criada com sucesso!", SnackbarStatus.SUCCESS);
     } catch (error: unknown) {
       setServerError(FirebaseService.getAuthErrorMessage(error));
+
+      setIsLoading(false);
+      showSnackbar("Não foi possível criar a conta", SnackbarStatus.ERROR);
     }
   });
 
