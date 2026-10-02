@@ -9,7 +9,7 @@ import type {
   MessageCreated,
   MessageData,
 } from "../../interfaces/message.interface";
-import { CallableUtil } from "../../utils/callable.util";
+import { callableOptions } from "../../options/callable.option";
 
 const messages = firestore.collection("messages");
 const contacts = firestore.collection("contacts");
@@ -24,7 +24,7 @@ const requireAuth = (uid?: string): string => {
 };
 
 export const createMessage = onCall(
-  CallableUtil.callableOptionCall,
+  callableOptions,
   async (request: CallableRequest<any>): Promise<MessageData> => {
     const ownerId = requireAuth(request.auth?.uid);
 
@@ -105,7 +105,7 @@ export const createMessage = onCall(
 );
 
 export const updateMessage = onCall(
-  CallableUtil.callableOptionCall,
+  callableOptions,
   async (request: CallableRequest<any>): Promise<MessageCreated> => {
     const ownerId = requireAuth(request.auth?.uid);
 
@@ -170,7 +170,7 @@ export const updateMessage = onCall(
 );
 
 export const deleteMessage = onCall(
-  CallableUtil.callableOptionCall,
+  callableOptions,
   async (request: CallableRequest<any>): Promise<MessageCreated> => {
     const ownerId = requireAuth(request.auth?.uid);
 

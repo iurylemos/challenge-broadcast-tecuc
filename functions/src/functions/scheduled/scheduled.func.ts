@@ -2,15 +2,12 @@ import { Timestamp } from "firebase-admin/firestore";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import { firestore } from "../../config/firebase.config";
 import { logger } from "firebase-functions";
+import { scheduleOptions } from "../../options/schedule.option";
 
 const messages = firestore.collection("messages");
 
 export const processScheduledMessages = onSchedule(
-  {
-    schedule: "every minute",
-    timeZone: "America/Sao_Paulo",
-    region: "southamerica-east1",
-  },
+  scheduleOptions,
   async (): Promise<void> => {
     const now = Timestamp.now();
 

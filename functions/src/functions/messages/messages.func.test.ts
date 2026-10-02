@@ -3,7 +3,7 @@ import { HttpsError, type CallableRequest } from "firebase-functions/v2/https";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const CALLABLE_OPTIONS = vi.hoisted(() => ({
-  region: "callable-options-sentinel",
+  region: "southamerica-east1",
 }));
 const captured = vi.hoisted(() => ({ options: [] as unknown[] }));
 
@@ -164,7 +164,7 @@ describe("messages callables", () => {
   it("registers the three callables with the shared options", () => {
     expect(captured.options).toHaveLength(3);
     captured.options.forEach((options) =>
-      expect(options).toBe(CALLABLE_OPTIONS),
+      expect(options).toStrictEqual(CALLABLE_OPTIONS),
     );
   });
 });

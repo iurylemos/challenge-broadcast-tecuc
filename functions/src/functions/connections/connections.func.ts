@@ -1,7 +1,21 @@
 import { FieldValue } from "firebase-admin/firestore";
-import { onCall, HttpsError } from "firebase-functions/v2/https";
+import {
+  onCall,
+  HttpsError,
+  CallableRequest,
+} from "firebase-functions/v2/https";
 import { firestore } from "../../config/firebase.config";
-import { CallableUtil } from "../../utils/callable.util";
+import { Connection } from "../../interfaces/connection.interface";
+import { callableOptions } from "../../options/callable.option";
+
+type CreateConnectionParams = Pick<Connection, "name">;
+type CreateConnectionData = Pick<Connection, "id" | "name">;
+
+type UpdateConnectionParams = Pick<Connection, "id" | "name">;
+type UpdateConnectionData = Pick<Connection, "id" | "name">;
+
+type DeleteConnectionParams = Pick<Connection, "id">;
+type DeleteConnectionData = { success: boolean };
 
 const connections = firestore.collection("connections");
 
@@ -14,8 +28,10 @@ const requireAuth = (uid?: string): string => {
 };
 
 export const createConnection = onCall(
-  CallableUtil.callableOptionCall,
-  async (request) => {
+  callableOptions,
+  async (
+    request: CallableRequest<CreateConnectionParams>,
+  ): Promise<CreateConnectionData> => {
     const ownerId = requireAuth(request.auth?.uid);
 
     const name = String(request.data?.name ?? "").trim();
@@ -41,8 +57,10 @@ export const createConnection = onCall(
 );
 
 export const updateConnection = onCall(
-  CallableUtil.callableOptionCall,
-  async (request) => {
+  callableOptions,
+  async (
+    request: CallableRequest<UpdateConnectionParams>,
+  ): Promise<UpdateConnectionData> => {
     const ownerId = requireAuth(request.auth?.uid);
 
     const { id, name } = request.data ?? {};
@@ -71,8 +89,10 @@ export const updateConnection = onCall(
 );
 
 export const deleteConnection = onCall(
-  CallableUtil.callableOptionCall,
-  async (request) => {
+  callableOptions,
+  async (
+    request: CallableRequest<DeleteConnectionParams>,
+  ): Promise<DeleteConnectionData> => {
     const ownerId = requireAuth(request.auth?.uid);
 
     const id = request.data?.id;
