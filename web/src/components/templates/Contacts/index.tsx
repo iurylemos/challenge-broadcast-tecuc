@@ -1,8 +1,8 @@
-import { Alert, Button, CircularProgress } from "@mui/material";
+import { Alert, Button } from "@mui/material";
 import { useContext, useEffect, useState, type JSX } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { AuthContext } from "../../../contexts/auth/Auth.context";
+import { AuthContext } from "../../../contexts/auth/auth.context";
 
 import type { AuthState } from "../../../interfaces/auth.interface";
 import type { Contact } from "../../../interfaces/contact.interface";
@@ -15,14 +15,22 @@ import ContactList from "../../molecules/ContactList";
 import Header from "../../atoms/Header";
 import FooterContacts from "../../atoms/FooterContacts";
 import { RouterUtil } from "../../../utils/router.util";
+import {
+  LoadingContext,
+  type LoadingContextData,
+} from "../../../contexts/loading/loading.context";
+import {
+  SnackbarContext,
+  type SnackbarContextData,
+} from "../../../contexts/snackbar/snackbar.context";
+import { SnackbarStatus } from "../../../interfaces/snackbar.interface";
 
 export default function ContactsTemplate(): JSX.Element {
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [contacts, setContacts] = useState<Contact[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>("");
-
   const { user } = useContext<AuthState>(AuthContext);
+  const { setIsLoading } = useContext<LoadingContextData>(LoadingContext);
+  const { showSnackbar } = useContext<SnackbarContextData>(SnackbarContext);
 
   const navigate = useNavigate();
   const { connectionId } = useParams<ConnectionParams>();
@@ -47,14 +55,17 @@ export default function ContactsTemplate(): JSX.Element {
       connectionId,
       (items: Contact[]): void => {
         setContacts(items);
-        setLoading(false);
+        setIsLoading(false);
       },
       (): void => {
-        setError("Não foi possível carregar os contatos.");
-        setLoading(false);
+        setIsLoading(false);
+        showSnackbar(
+          "Não foi possível carregar os contatos.",
+          SnackbarStatus.ERROR,
+        );
       },
     );
-  }, [user, connectionId]);
+  }, [user, connectionId, setIsLoading, showSnackbar]);
 
   const handleCreate = (): void => {
     setSelectedContact({
@@ -72,13 +83,22 @@ export default function ContactsTemplate(): JSX.Element {
 
   const handleDelete = async (contact: Contact): Promise<void> => {
     try {
-      setLoading(true);
+      setIsLoading(true);
+
       await ContactsService.delete(contact.id);
+
+      setIsLoading(false);
+
+      showSnackbar("Contato deletado com sucesso!", SnackbarStatus.SUCCESS);
     } catch (error) {
       console.error("Failed to delete contact:", error);
-      setError("Não foi possível excluir o contato.");
-    } finally {
-      setLoading(false);
+
+      const errorMessage =
+        error instanceof Error ? error.message : "Erro desconhecido";
+
+      setIsLoading(false);
+
+      showSnackbar(errorMessage, SnackbarStatus.ERROR);
     }
   };
 
@@ -87,7 +107,7 @@ export default function ContactsTemplate(): JSX.Element {
       return;
     }
     try {
-      setLoading(true);
+      setIsLoading(true);
 
       if (selectedContact.id) {
         await ContactsService.update(selectedContact.id, name, phone);
@@ -101,6 +121,13 @@ export default function ContactsTemplate(): JSX.Element {
         ...defaultContact,
         connectionId,
       });
+
+      setIsLoading(false);
+
+      showSnackbar(
+        `Contato ${selectedContact.id ? "atualizado" : "criado"} com sucesso!`,
+        SnackbarStatus.SUCCESS,
+      );
     } catch (error: unknown) {
       console.error("Failed to save or update contact:", error);
 
@@ -108,9 +135,9 @@ export default function ContactsTemplate(): JSX.Element {
         ? "Não foi possível atualizar o contato."
         : "Não foi possível criar o contato.";
 
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
+      setIsLoading(false);
+
+      showSnackbar(errorMessage, SnackbarStatus.ERROR);
     }
   };
 
@@ -165,30 +192,15 @@ export default function ContactsTemplate(): JSX.Element {
             </Button>
           </header>
 
-          {error && (
-            <Alert
-              severity="error"
-              className="rounded-xl! border border-red-500/20!"
-            >
-              {error}
-            </Alert>
-          )}
-
           <section>
-            {loading ? (
-              <div className="flex justify-center py-16">
-                <CircularProgress />
-              </div>
-            ) : (
-              <ContactList
-                contacts={contacts}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                openMessages={() => {
-                  navigate(RouterUtil.generateRouteMessages(connectionId));
-                }}
-              />
-            )}
+            <ContactList
+              contacts={contacts}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              openMessages={() => {
+                navigate(RouterUtil.generateRouteMessages(connectionId));
+              }}
+            />
           </section>
 
           <ContactDialog

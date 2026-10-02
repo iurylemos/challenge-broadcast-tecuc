@@ -1,6 +1,8 @@
 import type { JSX, ReactNode } from "react";
 import { CssBaseline, StyledEngineProvider } from "@mui/material";
 import { AuthProvider } from "./Auth.provider";
+import { LoadingProvider } from "./Loading.provider";
+import { SnackbarProvider } from "./Snackbar.provider";
 
 type GeneralProviderProps = {
   children: ReactNode;
@@ -12,7 +14,11 @@ export default function GeneralProvider({
   return (
     <StyledEngineProvider injectFirst>
       <CssBaseline />
-      <AuthProvider>{children}</AuthProvider>
+      <LoadingProvider>
+        <SnackbarProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </SnackbarProvider>
+      </LoadingProvider>
     </StyledEngineProvider>
   );
 }

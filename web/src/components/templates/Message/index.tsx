@@ -1,8 +1,8 @@
-import { Alert, Button, CircularProgress } from "@mui/material";
+import { Alert, Button } from "@mui/material";
 import { useContext, useEffect, useMemo, useState, type JSX } from "react";
 import { useParams } from "react-router-dom";
 
-import { AuthContext } from "../../../contexts/auth/Auth.context";
+import { AuthContext } from "../../../contexts/auth/auth.context";
 import type { AuthState } from "../../../interfaces/auth.interface";
 import type { ConnectionParams } from "../../../interfaces/connection.interface";
 import type { Contact } from "../../../interfaces/contact.interface";
@@ -19,10 +19,18 @@ import MessageDialog from "../../organisms/MessageDialog";
 import Header from "../../atoms/Header";
 import FooterMessage from "../../atoms/FooterMessage";
 import Tabs from "../../atoms/Tabs";
+import {
+  LoadingContext,
+  type LoadingContextData,
+} from "../../../contexts/loading/loading.context";
+import {
+  SnackbarContext,
+  type SnackbarContextData,
+} from "../../../contexts/snackbar/snackbar.context";
+import { SnackbarStatus } from "../../../interfaces/snackbar.interface";
 
 export default function MessageTemplate(): JSX.Element {
   const [error, setError] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(true);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [filter, setFilter] = useState<MessageFilter>("all");
@@ -31,6 +39,8 @@ export default function MessageTemplate(): JSX.Element {
 
   const { connectionId } = useParams<ConnectionParams>();
   const { user } = useContext<AuthState>(AuthContext);
+  const { setIsLoading } = useContext<LoadingContextData>(LoadingContext);
+  const { showSnackbar } = useContext<SnackbarContextData>(SnackbarContext);
 
   useEffect(() => {
     if (!user || !connectionId) {
@@ -58,15 +68,15 @@ export default function MessageTemplate(): JSX.Element {
       connectionId,
       (items: Message[]): void => {
         setMessages(items);
-        setLoading(false);
+        setIsLoading(false);
       },
       (error: Error): void => {
         console.error(error);
         setError("Não foi possível carregar as mensagens.");
-        setLoading(false);
+        setIsLoading(false);
       },
     );
-  }, [user, connectionId]);
+  }, [user, connectionId, setIsLoading]);
 
   const filteredMessages = useMemo(() => {
     if (filter === "all") {
@@ -88,13 +98,16 @@ export default function MessageTemplate(): JSX.Element {
 
   const handleDelete = async (message: Message): Promise<void> => {
     try {
-      setLoading(true);
+      setIsLoading(true);
       await MessagesService.delete(message.id);
+
+      setIsLoading(false);
+      showSnackbar("Mensagem deletada com sucesso!", SnackbarStatus.SUCCESS);
     } catch (error: unknown) {
       console.error("Failed to delete message:", error);
       setError("Não foi possível deletar a mensagem");
-    } finally {
-      setLoading(false);
+      setIsLoading(false);
+      showSnackbar("Não foi possível deletar a mensagem", SnackbarStatus.ERROR);
     }
   };
 
@@ -108,7 +121,7 @@ export default function MessageTemplate(): JSX.Element {
     }
 
     try {
-      setLoading(true);
+      setIsLoading(true);
 
       if (selectedMessage) {
         await MessagesService.update({
@@ -128,6 +141,11 @@ export default function MessageTemplate(): JSX.Element {
 
       setDialogOpen(false);
       setSelectedMessage(null);
+      setIsLoading(false);
+      showSnackbar(
+        `Mensagem ${selectedMessage ? "atualizada" : "criada"} com sucesso!`,
+        SnackbarStatus.SUCCESS,
+      );
     } catch (error: unknown) {
       const errorMessage = selectedMessage
         ? "Não foi possível atualizar a mensagem"
@@ -135,9 +153,9 @@ export default function MessageTemplate(): JSX.Element {
 
       console.error(errorMessage, error);
 
+      setIsLoading(false);
+      showSnackbar(errorMessage, SnackbarStatus.ERROR);
       setError(errorMessage);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -195,17 +213,11 @@ export default function MessageTemplate(): JSX.Element {
           <Tabs currentFilter={filter} setFilter={setFilter} />
 
           <section>
-            {loading ? (
-              <div className="flex justify-center py-16">
-                <CircularProgress />
-              </div>
-            ) : (
-              <MessageList
-                messages={filteredMessages}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
-            )}
+            <MessageList
+              messages={filteredMessages}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
           </section>
 
           <MessageDialog
